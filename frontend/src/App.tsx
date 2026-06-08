@@ -400,7 +400,11 @@ Try one of the sample prompts on the left, or type your question below.`,
   const [health, setHealth] = useState<HealthData | null>(null)
   const [ragStats, setRagStats] = useState<{ total_chunks: number; sources: string[] } | null>(null)
   const [tab, setTab] = useState<Tab>('chat')
-  const [tools, setTools] = useState<unknown[]>([])
+  type Tool = {
+  name: string
+  description: string
+}
+  const [tools, setTools] = useState<Tool[]>([])
   const [toolResult, setToolResult] = useState<unknown>(null)
   const [ingestStatus, setIngestStatus] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -580,8 +584,15 @@ Try one of the sample prompts on the left, or type your question below.`,
 }
 
 // ─── Tools Panel ─────────────────────────────────────────────────────────────
-
-function ToolsPanel({ tools, onRun, result }: { tools: unknown[]; onRun: (name: string, params: Record<string, unknown>) => void; result: unknown }) {
+function ToolsPanel({
+  tools,
+  onRun,
+  result
+}: {
+  tools: Tool[]
+  onRun: (name: string, params: Record<string, unknown>) => Promise<unknown>
+  result: unknown
+}){
   const [selected, setSelected] = useState<string>('github')
   const [params, setParams] = useState('{\n  "action": "search_issues",\n  "query": "authentication",\n  "days": 30\n}')
   const [running, setRunning] = useState(false)
@@ -603,7 +614,7 @@ function ToolsPanel({ tools, onRun, result }: { tools: unknown[]; onRun: (name: 
       <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>Tool Registry</h2>
       <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: 16 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {(tools as Array<{name: string; description: string}>).map((t) => (
+          {tools.map((t) => (
             <button key={t.name} onClick={() => setSelected(t.name)}
               style={{
                 padding: '10px 12px', borderRadius: 8, textAlign: 'left', cursor: 'pointer',
