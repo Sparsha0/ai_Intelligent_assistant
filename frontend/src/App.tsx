@@ -9,6 +9,10 @@ import { chatRequest, getHealth, getRAGStats, ingestFile, listTools, runTool, in
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 type Mode = 'auto' | 'rag' | 'agent' | 'chat'
+  type Tool = {
+  name: string
+  description?: string
+}
 
 interface AgentStep {
   agent: string
@@ -380,6 +384,7 @@ const SAMPLE_PROMPTS = [
 
 type Tab = 'chat' | 'tools' | 'observe'
 
+
 export default function App() {
   const [messages, setMessages] = useState<Message[]>([{
     id: 'welcome',
@@ -400,10 +405,6 @@ Try one of the sample prompts on the left, or type your question below.`,
   const [health, setHealth] = useState<HealthData | null>(null)
   const [ragStats, setRagStats] = useState<{ total_chunks: number; sources: string[] } | null>(null)
   const [tab, setTab] = useState<Tab>('chat')
-  type Tool = {
-  name: string
-  description: string
-}
   const [tools, setTools] = useState<Tool[]>([])
   const [toolResult, setToolResult] = useState<unknown>(null)
   const [ingestStatus, setIngestStatus] = useState('')
@@ -641,11 +642,13 @@ function ToolsPanel({
             style={{ marginTop: 8, padding: '8px 20px', borderRadius: 6, background: 'var(--accent)', border: 'none', color: '#fff', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>
             {running ? 'Running...' : 'Run Tool'}
           </button>
-          {result && (
-            <pre style={{ marginTop: 12, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, padding: 12, overflow: 'auto', maxHeight: 300, fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-              {JSON.stringify(result, null, 2)}
-            </pre>
-          )}
+          {result != null && (
+  <pre>
+    {typeof result === 'string'
+      ? result
+      : JSON.stringify(result, null, 2)}
+  </pre>
+)}
         </div>
       </div>
     </div>
